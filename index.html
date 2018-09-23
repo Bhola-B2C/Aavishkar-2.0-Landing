@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - shaders - ocean</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+		<style>
+
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				margin: 0px;
+				overflow: hidden;
+				height: 100vh;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				/* text-align:center; */
+				padding: 5px;
+			}
+
+			.left-logo {
+				float: left;
+			}
+
+			.right-logo {
+				float: right;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info">
+			<!-- <a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - webgl ocean -->
+			<div class="row">
+				<div class="col-md-6 left-logo"><img src="textures/clg.png" alt=""></div>
+				<div class="col-md-6"><img src="textures/clubs.png" alt="" class="right-logo"></div>
+			</div>
+		</div>
+
+		<script src="build/three.min.js"></script>
+
+		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/objects/Water.js"></script>
+		<script src="js/objects/Sky.js"></script>
+
+		<!-- Uncomment to use Game Character -->
+		<!-- <script src='js/loaders/MD2Loader.js'></script>
+		<script src='js/MD2Character.js'></script> -->
+
+		<script src="js/loaders/AssimpLoader.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/libs/dat.gui.min.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var container, stats;
+			var camera, scene, renderer, light;
+			var controls, water, sphere;
+
+			var animation;
+			
+			// Game Character
+			/*var character;
+			var gui, playbackConfig = {
+				speed: 1.0,
+				wireframe: false
+			};*/
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				//
+
+				scene = new THREE.Scene();
+
+				//
+
+				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 1, 20000 );
+				camera.position.set( 30, 30, 100 );
+
+				//
+
+				light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+				scene.add( light );
+				
+				var ambient = new THREE.HemisphereLight( 0x8888fff, 0xff8888, 0.5 );
+				ambient.position.set( 0, 1, 0 );
+				scene.add( ambient );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 1 );
+				light.position.set( 0, 4, 4 ).normalize();
+				scene.add( light );
+
+				// Game Character Light
+				/*var light = new THREE.SpotLight( 0xffffff, 5, 1000 );
+				light.position.set( 200, 250, 500 );
+				light.angle = 0.5;
+				light.penumbra = 0.5;
+				light.castShadow = true;
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+				scene.add( light );
+
+				var light = new THREE.SpotLight( 0xffffff, 5, 1000 );
+				light.position.set( -100, 350, 350 );
+				light.angle = 0.5;
+				light.penumbra = 0.5;
+				light.castShadow = true;
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+				scene.add(light);*/
+
+				// Water
+
+				var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
+
+				water = new THREE.Water(
+					waterGeometry,
+					{
+						textureWidth: 512,
+						textureHeight: 512,
+						waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+							texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+						}),
+						alpha: 1.0,
+						sunDirection: light.position.clone().normalize(),
+						sunColor: 0xffffff,
+						waterColor: 0x001e0f,
+						distortionScale:  3.7,
+						fog: scene.fog !== undefined
+					}
+				);
+
+				water.rotation.x = - Math.PI / 2;
+
+				scene.add( water );
+
+				// Skybox
+
+				var sky = new THREE.Sky();
+				sky.scale.setScalar( 10000 );
+				scene.add( sky );
+
+				var uniforms = sky.material.uniforms;
+
+				uniforms.turbidity.value = 10;
+				uniforms.rayleigh.value = 2;
+				uniforms.luminance.value = 1;
+				uniforms.mieCoefficient.value = 0.005;
+				uniforms.mieDirectionalG.value = 0.8;
+
+				var parameters = {
+					distance: 400,
+					inclination: 0.49,
+					azimuth: 0.205
+				};
+
+				var cubeCamera = new THREE.CubeCamera( 1, 20000, 256 );
+				cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+				function updateSun() {
+
+					var theta = Math.PI * ( parameters.inclination - 0.5 );
+					var phi = 2 * Math.PI * ( parameters.azimuth - 0.5 );
+
+					light.position.x = parameters.distance * Math.cos( phi );
+					light.position.y = parameters.distance * Math.sin( phi ) * Math.sin( theta );
+					light.position.z = parameters.distance * Math.sin( phi ) * Math.cos( theta );
+
+					sky.material.uniforms.sunPosition.value = light.position.copy( light.position );
+					water.material.uniforms.sunDirection.value.copy( light.position ).normalize();
+
+					cubeCamera.update( renderer, scene );
+
+				}
+
+				updateSun();
+
+				var loader = new THREE.AssimpLoader();
+				loader.load( './models/assimp/octaminator/Octaminator.assimp', function ( result ) {
+
+					var object = result.object;
+					object.scale.x = object.scale.y = object.scale.z = 0.1;
+					object.position.y = 15;
+					// object.rotation.x = 0;
+					// object.rotation.y = 0;
+					// object.rotation.z = 0;
+					// object.rotation.x = Math.PI / 2;
+					scene.add( object );
+
+					animation = result.animation;
+
+				} );
+
+
+				// GUI for Game Character
+
+				/*gui = new dat.GUI();
+
+				gui.add( playbackConfig, 'speed', 0, 2 ).onChange( function() {
+
+					character.setPlaybackRate( playbackConfig.speed );
+
+				} );
+
+				gui.add( playbackConfig, 'wireframe', false ).onChange( function() {
+
+					character.setWireframe( playbackConfig.wireframe );
+
+				} );*/
+				
+
+				//Charcter
+
+				// CHARACTER
+
+				/*var config = {
+
+					baseUrl: "models/md2/ratamahatta/",
+
+					body: "ratamahatta.md2",
+					skins: [ "ratamahatta.png", "ctf_b.png", "ctf_r.png", "dead.png", "gearwhore.png" ],
+					weapons:  [  [ "weapon.md2", "weapon.png" ],
+								[ "w_bfg.md2", "w_bfg.png" ],
+								[ "w_blaster.md2", "w_blaster.png" ],
+								[ "w_chaingun.md2", "w_chaingun.png" ],
+								[ "w_glauncher.md2", "w_glauncher.png" ],
+								[ "w_hyperblaster.md2", "w_hyperblaster.png" ],
+								[ "w_machinegun.md2", "w_machinegun.png" ],
+								[ "w_railgun.md2", "w_railgun.png" ],
+								[ "w_rlauncher.md2", "w_rlauncher.png" ],
+								[ "w_shotgun.md2", "w_shotgun.png" ],
+								[ "w_sshotgun.md2", "w_sshotgun.png" ]
+								]
+
+				};
+
+				character = new THREE.MD2Character();
+				character.scale = 1;
+
+				character.onLoadComplete = function() {
+
+					setupSkinsGUI( character );
+					setupWeaponsGUI( character );
+					setupGUIAnimations( character );
+					character.setAnimation( character.meshBody.geometry.animations[0].name );
+
+				};
+
+				character.loadParts( config );
+
+				scene.add( character.root );*/
+
+				// var geometry = new THREE.IcosahedronBufferGeometry( 20, 1 );
+				// var count = geometry.attributes.position.count;
+
+				// var colors = [];
+				// var color = new THREE.Color();
+
+				// for ( var i = 0; i < count; i += 3 ) {
+
+				// 	color.setHex( Math.random() * 0xffffff );
+
+				// 	colors.push( color.r, color.g, color.b );
+				// 	colors.push( color.r, color.g, color.b );
+				// 	colors.push( color.r, color.g, color.b );
+
+				// }
+
+				// geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+
+				// var material = new THREE.MeshStandardMaterial( {
+				// 	vertexColors: THREE.VertexColors,
+				// 	roughness: 0.0,
+				// 	flatShading: true,
+				// 	envMap: cubeCamera.renderTarget.texture,
+				// 	side: THREE.DoubleSide
+				// } );
+
+				// sphere = new THREE.Mesh( geometry, material );
+				// scene.add( sphere );
+
+				//
+
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.maxPolarAngle = Math.PI * 0.495;
+				controls.target.set( 0, 10, 0 );
+				controls.minDistance = 40.0;
+				controls.maxDistance = 200.0;
+				camera.lookAt( controls.target );
+
+				// FPS Stats
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				// GUI
+
+				// var gui = new dat.GUI();
+
+				// var folder = gui.addFolder( 'Sky' );
+				// folder.add( parameters, 'inclination', 0, 0.5, 0.0001 ).onChange( updateSun );
+				// folder.add( parameters, 'azimuth', 0, 1, 0.0001 ).onChange( updateSun );
+				// folder.open();
+
+				// var uniforms = water.material.uniforms;
+
+				// var folder = gui.addFolder( 'Water' );
+				// folder.add( uniforms.distortionScale, 'value', 0, 8, 0.1 ).name( 'distortionScale' );
+				// folder.add( uniforms.size, 'value', 0.1, 10, 0.1 ).name( 'size' );
+				// folder.add( uniforms.alpha, 'value', 0.9, 1, .001 ).name( 'alpha' );
+				// folder.open();
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+			
+			/*function labelize( text ) {
+				var parts = text.split( "." );
+				if ( parts.length > 1 ) {
+					parts.length -= 1;
+					return parts.join( "." );
+				}
+				return text;
+
+			}
+
+			function setupWeaponsGUI( character ) {
+
+				var folder = gui.addFolder( "Weapons" );
+
+				var generateCallback = function( index ) {
+
+					return function () { character.setWeapon( index ); };
+
+				};
+
+				var guiItems = [];
+
+				for ( var i = 0; i < character.weapons.length; i ++ ) {
+
+					var name = character.weapons[ i ].name;
+
+					playbackConfig[ name ] = generateCallback( i );
+					guiItems[ i ] = folder.add( playbackConfig, name ).name( labelize( name ) );
+
+				}
+
+			}
+
+			//
+
+			function setupSkinsGUI( character ) {
+
+				var folder = gui.addFolder( "Skins" );
+
+				var generateCallback = function( index ) {
+
+					return function () { character.setSkin( index ); };
+
+				};
+
+				var guiItems = [];
+
+				for ( var i = 0; i < character.skinsBody.length; i ++ ) {
+
+					var name = character.skinsBody[ i ].name;
+
+					playbackConfig[ name ] = generateCallback( i );
+					guiItems[ i ] = folder.add( playbackConfig, name ).name( labelize( name ) );
+
+				}
+
+			}
+
+			//
+
+			function setupGUIAnimations( character ) {
+
+				var folder = gui.addFolder( "Animations" );
+
+				var generateCallback = function( animationClip ) {
+
+					return function () { character.setAnimation( animationClip.name ); };
+
+				};
+
+				var i = 0, guiItems = [];
+				var animations = character.meshBody.geometry.animations;
+
+				for ( var i = 0; i < animations.length; i ++ ) {
+
+					var clip = animations[i];
+
+					playbackConfig[ clip.name ] = generateCallback( clip );
+					guiItems[ i ] = folder.add( playbackConfig, clip.name, clip.name );
+
+					i ++;
+
+				}
+
+			}*/
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+				stats.update();
+
+				//requestAnimationFrame( animate, renderer.domElement );
+				//renderer.render( scene, camera );
+				if ( animation ) animation.setTime( performance.now() / 1000 );
+				//stats.update();
+
+			}
+
+			function render() {
+
+				var time = performance.now() * 0.001;
+
+				// sphere.position.y = Math.sin( time ) * 20 + 5;
+				// sphere.rotation.x = time * 0.5;
+				// sphere.rotation.z = time * 0.51;
+
+				water.material.uniforms.time.value += 1.0 / 60.0;
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
