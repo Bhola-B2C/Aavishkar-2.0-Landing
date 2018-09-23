@@ -170,10 +170,17 @@
 				uniforms.luminance.value = 1;
 				uniforms.mieCoefficient.value = 0.005;
 				uniforms.mieDirectionalG.value = 0.8;
-
+				
+				var today = new Date().getHours();
+				var incl;
+				if (today >= 5 && today <= 17) {
+					incl=0;
+				} else {
+					incl=0.49;
+				}
 				var parameters = {
 					distance: 400,
-					inclination: 0.49,
+					inclination: incl,
 					azimuth: 0.205
 				};
 
