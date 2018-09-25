@@ -44,15 +44,12 @@
 			</div>
 		</div>
 
+		<!-- <script src="js/fonts/Coolvetica_Regular.js"></script> -->
 		<script src="build/three.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
 		<script src="js/THREEx.KeyboardState.js"></script>
 		<script src="js/objects/Water.js"></script>
 		<script src="js/objects/Sky.js"></script>
-
-		<!-- Uncomment to use Game Character -->
-		<!-- <script src='js/loaders/MD2Loader.js'></script>
-		<script src='js/MD2Character.js'></script> -->
 
 		<script src="js/loaders/AssimpLoader.js"></script>
 
@@ -71,6 +68,9 @@
 			var object;
 			var keyboard = new THREEx.KeyboardState();
 			var clock = new THREE.Clock();
+			var loader = new THREE.AssimpLoader();
+			var floader = new THREE.FontLoader();
+			var mesh;
 
 			init();
 			animate();
@@ -172,19 +172,48 @@
 
 				}
 				updateSun();
-
-				var loader = new THREE.AssimpLoader();
+				
+				// Character
 				loader.load( './models/assimp/octaminator/Octaminator.assimp', function ( result ) {
 
 					object = result.object;
 					object.scale.x = object.scale.y = object.scale.z = 0.1;
 					object.position.y = 10;
-					object.rotation.x = object.rotation.y = object.rotation.z = 0;
+					object.position.z = -5;
+					object.rotation.x = object.rotation.z = 0;
+					object.rotation.y = Math.PI;
 					scene.add( object );
 
 					animation = result.animation;
 
 				} );
+
+				// Font
+
+				floader.load( 'js/fonts/Coolvetica_Regular.js', function ( font ) {
+
+					var material = new THREE.MeshPhongMaterial( { color: 0x0033ff, specular: 0x555555, shininess: 30 } );
+
+					var textGeo = new THREE.TextGeometry( 'Aavishkar 2.0', {
+						font: font,
+						size: 12,
+						height: 5,
+						curveSegments: 12,
+						//bevelEnabled: true,
+						material: 0,
+						extrudeMaterial: 1
+					} );
+
+					textGeo.computeBoundingBox();
+					textGeo.computeVertexNormals();
+
+					mesh = new THREE.Mesh( textGeo, material );
+					mesh.position.set(-60,0,-60);
+					mesh.rotation.set(0,0.2,0);
+					scene.add(mesh);
+
+				} );
+
 
 				//
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -232,7 +261,7 @@
 			{
 				// delta = change in time since last call (seconds)
 				delta = clock.getDelta(); 
-				var moveDistance = 50 * delta;
+				var moveDistance = 30 * delta;
 				walking = false;
 				// move forwards / backwards
 				if ( keyboard.pressed("w") )
@@ -257,7 +286,7 @@
 			function render() {
 
 				var time = performance.now() * 0.001;
-				// sphere.position.y = Math.sin( time ) * 20 + 5;
+				mesh.position.y = Math.sin( time ) * 8 + 2;
 				// sphere.rotation.x = time * 0.5;
 				// sphere.rotation.z = time * 0.51;
 				water.material.uniforms.time.value += 1.0 / 60.0;
