@@ -44,9 +44,9 @@
 			</div>
 		</div>
 
-		<script src="build/three.min.js"></script>
-
+		<script src="build/three.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
+		<script src="js/THREEx.KeyboardState.js"></script>
 		<script src="js/objects/Water.js"></script>
 		<script src="js/objects/Sky.js"></script>
 
@@ -69,6 +69,8 @@
 			var controls, water, sphere;
 			var animation;
 			var object;
+			var keyboard = new THREEx.KeyboardState();
+			var clock = new THREE.Clock();
 
 			init();
 			animate();
@@ -176,13 +178,8 @@
 
 					object = result.object;
 					object.scale.x = object.scale.y = object.scale.z = 0.1;
-					object.position.y = 12;
-					// object.position.x = 20;
-					// object.position.z = -1000;
-					// object.rotation.x = 0;
-					// object.rotation.y = 0;
-					// object.rotation.z = 0;
-					// object.rotation.x = Math.PI / 2;
+					object.position.y = 10;
+					object.rotation.x = object.rotation.y = object.rotation.z = 0;
 					scene.add( object );
 
 					animation = result.animation;
@@ -205,25 +202,15 @@
 			}
 		
 			// Character Movement
-			var xSpeed = 1;
-			var ySpeed = 1;
-
-			document.addEventListener("keydown", onDocumentKeyDown, false);
-			function onDocumentKeyDown(event) {
-				var keyCode = event.which;
-				if (keyCode == 87) {
-					//console.log("yes");
-					object.position.z -= ySpeed;
-				} else if (keyCode == 83) {
-					object.position.z += ySpeed;
-				} else if (keyCode == 65) {
-					object.position.x -= xSpeed;
-				} else if (keyCode == 68) {
-					object.position.x += xSpeed;
-				} else if (keyCode == 32) {
-					object.position.set(0, 15, 0);
-				}
-			};
+			// the following code is from
+			//    http://catchvar.com/threejs-animating-blender-models
+			var animOffset       = 0,   // starting frame of animation
+				walking         = false,
+				duration        = 1000, // milliseconds to complete animation
+				keyframes       = 20,   // total number of animation frames
+				interpolation   = duration / keyframes, // milliseconds per frame
+				lastKeyframe    = 0,    // previous keyframe
+				currentKeyframe = 0;
 
 			function onWindowResize() {
 
@@ -236,9 +223,35 @@
 
 				requestAnimationFrame( animate );
 				render();
+				update();
 				stats.update();
-				//object.rotation.y = Date.now()*.002;
 				if ( animation ) animation.setTime( performance.now() / 1000 );
+			}
+
+			function update()
+			{
+				// delta = change in time since last call (seconds)
+				delta = clock.getDelta(); 
+				var moveDistance = 50 * delta;
+				walking = false;
+				// move forwards / backwards
+				if ( keyboard.pressed("w") )
+					object.translateZ( -moveDistance );
+				if ( keyboard.pressed("s") )
+					object.translateZ(  moveDistance );
+				// rotate left/right
+				if ( keyboard.pressed("a") )
+					object.rotation.y += delta;
+				if ( keyboard.pressed("d") )
+					object.rotation.y -= delta;
+				
+				
+				var walkingKeys = ["w", "s", "a", "d"];
+				for (var i = 0; i < walkingKeys.length; i++)
+				{
+					if ( keyboard.pressed(walkingKeys[i]) )
+						walking = true;
+				}
 			}
 
 			function render() {
