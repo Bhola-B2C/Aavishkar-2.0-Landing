@@ -330,7 +330,12 @@
 				render();
 				update();
 				stats.update();
-				shipObject.rotation.y += 0.001;
+				try {
+					shipObject.rotation.y += 0.001;
+				}
+				catch(err) {
+					//console.log("Error: " + err);
+				}
 				if ( animation ) animation.setTime( performance.now() / 1000 );
 			}
 
