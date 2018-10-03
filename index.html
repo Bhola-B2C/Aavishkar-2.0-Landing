@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Aaviskhar|The Tech Fest, NIT Durgapur</title>
+		<title>Aaviskhar | The Tech Fest, NIT Durgapur</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet"> 
 		<style>
 
 			body {
-				color: #000;
+				/* color: #6d6d6d; */
+				color: #fff;
 				font-family:Monospace;
 				font-size:13px;
 				margin: 0px;
 				overflow: hidden;
 				height: 100vh;
+				font-family: 'Oswald', sans-serif;
 			}
 
 			#info {
@@ -28,22 +32,22 @@
 			.left-logo {
 				float: left;
 				height: 12vh;
+				display: none;
 			}
 
 			.right-logo {
 				float: right;
 				height: 12vh;
+				display: none;
 			}
 
-			.instruction {
-				border: 1px;
-				width: 20%;
-				float: right;
-				margin-top: 10%;
-				background-color: #fff;
-    			background-color: rgba(255,255,255,0.3);
-				height: 12.55vh;
+			.logo-phone {
+				position: fixed;
+				top: 0;
+				right: 0;
+				display: none;
 			}
+
 			#switch {
 				border: 1px;
 				width: 1.5%;
@@ -51,7 +55,7 @@
 				float: right;
 				margin-top: 10%;
 				background-color: #fff;
-    			background-color: rgba(255,255,255,0.3);
+    			background-color: rgba(0, 0, 0, 0.5);
 				cursor: pointer;
 				height: 12.55vh;
 			}
@@ -66,36 +70,235 @@
 				transform: rotate(135deg);
 				-webkit-transform: rotate(135deg);
 			}
-			.instruction p{
-				text-align: center;
+
+			.instruction {
+				border: 1px;
+				width: 20%;
+				float: right;
+				margin-top: 10%;
+    			background-color: rgba(0, 0, 0, 0.5);
+				height: 12.55vh;
+			}
+			.instruction ul{
+				/* text-align: center; */
 				color: #fff;
-				font-size: 120%;
+				font-size: 2.2vh;
 			}
 
 			.instruction h6{
 				text-align: center;
 				color: #fff;
-				font-size: 150%;
+				font-size: 2.8vh;
 				text-decoration: underline;
 			}
 
 			.footer {
-				background: #000;
 				position: fixed;
 				bottom: 0;
 				text-align: center;
 				width: 100vw;
-				color: #fff;
-				font-style: bold;
+				height: 20vh;
+				background-image: url('textures/footer.png');
+				background-repeat: no-repeat;
+				background-size: 100% 100%;
 			}
 
 			.header {
-				/* background: #000; */
+				width: 100vw;
+				height: 20vh;
+				background-image: url('textures/header2.png');
+				background-repeat: no-repeat;
+				background-size: 100% 100%;
+				font-size: 2.2vh;
+			}
+			
+			.social-icons {
+				right: 2%;
+				position: fixed;
+				bottom: 2%;
+				font-size: 2em;
+			}
+			.social-icons i {
+				border: none;
+				color: #6d6d6d;
 			}
 
-			 @media only screen and (max-width: 600px) {
+			.social-icons i:hover {
+				color: blue;
+			}
+			
+			p {
+				margin: 4%;
+			}
+			
+
+			@import url('https://fonts.googleapis.com/css?family=Oswald');
+			/*NAVBAR*/
+			#navToggle
+			{
+				display: block;
+				position: relative;
+				top: 50px;
+				left: 50px;
+				
+				z-index: 1;
+				
+				-webkit-user-select: none;
+				user-select: none;
+			}
+
+			#navToggle input
+			{
+				display: block;
+				width: 40px;
+				height: 32px;
+				position: absolute;
+				top: -7px;
+				left: -5px;
+				
+				cursor: pointer;
+				
+				opacity: 0; /* hide this */
+				z-index: 2; /* and place it over the hamburger */
+				
+				-webkit-touch-callout: none;
+			}
+
+			/*
+			* Just a quick hamburger
+			*/
+			#navToggle span
+			{
+				display: block;
+				width: 23px;
+				height: 3px;
+				margin-bottom: 5px;
+				position: relative;
+				
+				background: #cdcdcd;
+				border-radius: 3px;
+				
+				z-index: 1;
+				
+				transform-origin: 4px 0px;
+				
+				transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+							background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+							opacity 0.55s ease;
+			}
+
+			#navToggle span:first-child
+			{
+				transform-origin: 0% 0%;
+			}
+
+			#navToggle span:nth-last-child(2)
+			{
+				transform-origin: 0% 100%;
+			}
+
+			/* 
+			* Transform all the slices of hamburger
+			* into a crossmark.
+			*/
+			#navToggle input:checked ~ span
+			{
+				opacity: 1;
+				transform: rotate(45deg) translate(0px, 2px);
+				background: #fff;
+			}
+
+			/*
+			* But let's hide the middle one.
+			*/
+			#navToggle input:checked ~ span:nth-last-child(3)
+			{
+				opacity: 0;
+				transform: rotate(0deg) scale(0.2, 0.2);
+			}
+
+			/*
+			* Ohyeah and the last one should go the other direction
+			*/
+			#navToggle input:checked ~ span:nth-last-child(2)
+			{
+				transform: rotate(-45deg) translate(0, -1px);
+			}
+
+			/*
+			* Make this absolute positioned
+			* at the top left of the screen
+			*/
+			#nav
+			{
+				position: absolute;
+				width: 110vw;
+				height: 130vh;
+				margin: -100px 0 0 -50px;
+				padding: 50px;
+				padding-top: 125px;
+				overflow-y: scroll;
+				background: #1d1d1f;
+				list-style-type: none;
+				-webkit-font-smoothing: antialiased;
+				/* to stop flickering of text in safari */
+				
+				transform-origin: 0% 0%;
+				transform: translate(-100%, 0);
+				
+				transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
+			}
+
+			#nav li
+			{
+				padding: 10px 0;
+				font-size: 3.6vh;
+				color: #fff;
+			}
+
+			.nav_menu:hover {
+				background: #51c5d1;
+				color: #fff !important;
+			}
+
+			.navigation a {
+				color: #fff;
+			}
+
+			.navigation a:hover {
+				color: #fff;
+			}
+
+			.active {
+				background: #51c5d1;
+			}
+
+			/*
+			* And let's slide it in from the left
+			*/
+			#navToggle input:checked ~ ul
+			{
+				transform: none;
+			}
+
+			@media only screen and (max-width: 800px) {
+				#navToggle {
+				margin-left: 5% !important;
+				margin-top: 6% !important;
+				}
+
+				.navigation {
+				display: none !important;
+				}
+				.navBar {
+				display: block !important;
+				}
+			}
+
+
+			 @media only screen and (max-width: 800px) {
 				.right-logo {
-					display: none;
+					display: block;
 				}
 				.left-logo img {
 					height: 70%;
@@ -104,6 +307,40 @@
 					display: none;
 				}
 				#switch {
+					display: none;
+				}
+				.social-icons {
+					position: fixed;
+					right: 35%;
+					bottom: 14%;
+					font-size: 2em;
+				}
+				.social-icons i {
+					color: #fff;
+				}
+				.header {
+					width: 100vw;
+					height: 20vh;
+					background-image: url('textures/head.png');
+					background-repeat: no-repeat;
+					background-size: 100% 100%;
+				}
+				.footer {
+					position: fixed;
+					bottom: 0;
+					text-align: center;
+					width: 100vw;
+					height: 20vh;
+					background-image: url('textures/foot.png');
+					background-repeat: no-repeat;
+					background-size: 100% 100%;
+				}
+
+				.logo-phone {
+					display: block;
+				}
+
+				.lappy-menu {
 					display: none;
 				}
 			}
@@ -115,10 +352,85 @@
 		<div id="container"></div>
 		<div id="info">
 			<!-- <a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - webgl ocean -->
-			<div class="row header">
-				<div class="col-md-4"><img src="textures/clg.png" alt="" class="left-logo"></div>
+			<div class="header">
+				<div class="row lappy-menu">
+					<div class="col-md-4 offset-md-6">
+						<div class="row">
+							<div class="col-md-3">
+								<p>Home</p>
+								<p>About Us</p>
+							</div>
+							<div class="col-md-3">
+								<p>Events</p>
+								<p>Schedule</p>
+								<p>Workshops</p>
+							</div>
+							<div class="col-md-3">
+								<p>Attractions</p>
+								<p>Ignitia</p>
+								<p>ScienceX</p>
+							</div>
+							<div class="col-md-3">
+								<p>Reach Us</p>
+								<p>Our Team</p>
+								<p>Web Team</p>
+								<p>Sponsors</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				 <!-- NAVBAR -->
+				<nav role="navigation" style="display: none;" class="navBar">
+					<div id="navToggle" style="position: absolute;left: 0%; top: 0%; margin-left: 2%; margin-top: 1.3%;">
+						<input type="checkbox" />
+						<span></span>
+						<span></span>
+						<span></span>
+						<ul id="nav">
+							<a href="/home/">
+								<li>Home</li>
+							</a>
+							<a href="/about/">
+								<li>About Us</li>
+							</a>
+							<a href="/events/groups">
+								<li>Events</li>
+							</a>
+							<a href="/teams/">
+								<li>Schedule</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Workshops</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Attractions</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Ignitia</li>
+							</a>
+							<a href="/sponsors/">
+								<li>ScienceX</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Reach Us</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Our Team</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Web Team</li>
+							</a>
+							<a href="/sponsors/">
+								<li>Sponsors</li>
+							</a>
+						</ul>
+					</div>
+				</nav>
+	
+				<div class="logo-phone"><img src="textures/clg.png" alt="" class="right-logo"></div>
+				<!-- <div class="col-md-4"><img src="textures/clg.png" alt="" class="left-logo"></div>
 				<div class="col-md-4"></div>
-				<div class="col-md-4"><img src="textures/clubs.png" alt="" class="right-logo"></div>
+				<div class="col-md-4"><img src="textures/clg.png" alt="" class="right-logo"></div> -->
 			</div>
 			<div id="switch">
 				<i class="left"></i>
@@ -126,15 +438,18 @@
 			<div class="instruction" id="toggle">
 				<div>
 					<h6>Instructions:</h6>
-					<p>Use 'W' 'A' 'S' 'D' to move the character</p>
+					<ul>
+						<li>Use 'W' 'A' 'S' 'D' to move the character</li>
+						<li>Click & Drag to move the Camera</li>
+					</ul>
 				</div>
 			</div>
 			<div class="footer">
-				<div>
-					<h4>Aavishkar 2.0</h4>
-				</div>
-				<div>
-					<h4>Welcome to the Next Level</h4>
+				<!-- <img src="textures/down_arrow.gif" alt=""> -->
+				<div class="social-icons">
+					<a target="_blank" href="https://www.facebook.com/aavishkar.nitd/"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+					<a target="_blank" href="https://www.instagram.com/aavishkar_nitd/"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+					<a target="_blank" href="https://www.youtube.com/channel/UCl42je3Zr5zTCpsHIj7xkbg/featured"><i class="fa fa-youtube" aria-hidden="true"></i></a>
 				</div>
 			</div>
 		</div>
@@ -182,6 +497,7 @@
 			var clock = new THREE.Clock();
 			var loader = new THREE.AssimpLoader();
 			var floader = new THREE.FontLoader();
+			var ambient;
 
 			init();
 			animate();
@@ -201,16 +517,13 @@
 
 				// Camera
 				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 1, 20000 );
-				camera.position.set( 30, 30, 100 );
+				camera.position.set( 28, 11, 102 );
 
 				// Light
-				light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-				scene.add( light );
+				// light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+				// scene.add( light );
 				
-				var ambient = new THREE.HemisphereLight( 0x8888fff, 0xff8888, 0.5 );
-				ambient.position.set( 0, 1, 0 );
-				scene.add( ambient );
-
+				// Water Light
 				var light = new THREE.DirectionalLight( 0xffffff, 1 );
 				light.position.set( 0, 4, 4 ).normalize();
 				scene.add( light );
@@ -236,10 +549,23 @@
 				water.rotation.x = - Math.PI / 2;
 				scene.add( water );
 
-				// Skybox
-				var imagePrefix = "textures/skybox/";
-				var directions  = ["right", "left", "top", "bottom", "front", "back"];
-				var imageSuffix = ".jpg";
+				// Skybox + Change according to time
+				var d = new Date();
+				var n = d.getHours();
+				var imagePrefix, imageSuffix, directions;
+				if(n>=18 || n<=4) {
+					imagePrefix = "textures/skybox-night/";
+					directions  = ["right", "left", "top", "bottom", "front", "back"];
+					imageSuffix = ".png";
+				}
+				else {
+					ambient = new THREE.HemisphereLight( 0xDCDCDC, 0xDCDCDC, 0.5 );
+					ambient.position.set( 0, 1, 0 );
+					scene.add( ambient );
+					imagePrefix = "textures/skybox-day/";
+					directions  = ["right", "left", "top", "bottom", "front", "back"];
+					imageSuffix = ".jpg";
+				}
 				var skyGeometry = new THREE.CubeGeometry( 5000, 5000, 5000 );
 
 				var materialArray = [];
@@ -282,7 +608,7 @@
 						shipObject = object;
 						shipObject.scale.x = shipObject.scale.y = shipObject.scale.z =1;
 						shipObject.position.y = -5;
-						shipObject.position.z = -900;
+						shipObject.position.z = -1300;
 						shipObject.rotation.y = 0.785;
 						scene.add(shipObject);
 					});
@@ -300,8 +626,9 @@
 				camera.lookAt( controls.target );
 
 				// FPS Stats
-				stats = new Stats();
-				container.appendChild( stats.dom );
+				// stats = new Stats();
+				// container.appendChild( stats.dom );
+
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
@@ -329,7 +656,7 @@
 				requestAnimationFrame( animate );
 				render();
 				update();
-				stats.update();
+				//stats.update();
 				try {
 					shipObject.rotation.y += 0.001;
 				}
@@ -337,6 +664,9 @@
 					//console.log("Error: " + err);
 				}
 				if ( animation ) animation.setTime( performance.now() / 1000 );
+				// console.log(camera.position.x);
+				// console.log(camera.position.y);
+				// console.log(camera.position.z);
 			}
 
 			function update()
